@@ -29,6 +29,7 @@ import {
   $publisherHost,
   $imageLoader,
   $textEditingInstanceSelector,
+  $isDesignMode,
 } from "~/shared/nano-states";
 import { $settings, type Settings } from "./shared/client-settings";
 import { builderUrl, getCanvasUrl } from "~/shared/router-utils";
@@ -280,6 +281,7 @@ export const Builder = ({
   });
   const isCloneDialogOpen = useStore($isCloneDialogOpen);
   const isPreviewMode = useStore($isPreviewMode);
+  const isDesignMode = useStore($isDesignMode);
   const { onRef: onRefReadCanvas, onTransitionEnd } = useReadCanvasRect();
 
   useSetWindowTitle();
@@ -398,7 +400,8 @@ export const Builder = ({
                 />
               )}
             </Workspace>
-            <AiCommandBar isPreviewMode={isPreviewMode} />
+
+            {isDesignMode && <AiCommandBar />}
           </Main>
           <SidePanel gridArea="sidebar">
             <SidebarLeft publish={publish} />

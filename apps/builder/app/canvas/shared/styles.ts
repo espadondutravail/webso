@@ -28,7 +28,6 @@ import {
   $assets,
   $breakpoints,
   $instances,
-  $isPreviewMode,
   $props,
   $registeredComponentMetas,
   $selectedStyleState,
@@ -110,25 +109,20 @@ const helperStyles = [
   }`,
 ];
 
-const subscribePreviewMode = () => {
-  let isRendered = false;
+// Find all editable elements and set cursor text inside
+// const helperStylesContent = [];
 
-  const unsubscribe = $isPreviewMode.subscribe((isPreviewMode) => {
-    helpersSheet.setAttribute("media", isPreviewMode ? "not all" : "all");
-    if (isRendered === false) {
-      for (const style of helperStyles) {
-        helpersSheet.addPlaintextRule(style);
-      }
-      helpersSheet.render();
-      isRendered = true;
-    }
-  });
+const subscribeHelperStyles = () => {
+  helpersSheet.setAttribute("media", "all");
+
+  for (const style of helperStyles) {
+    helpersSheet.addPlaintextRule(style);
+  }
+  helpersSheet.render();
 
   return () => {
     helpersSheet.clear();
     helpersSheet.render();
-    unsubscribe();
-    isRendered = false;
   };
 };
 
@@ -318,7 +312,7 @@ export const subscribeStyles = () => {
 export const manageDesignModeStyles = ({ signal }: { signal: AbortSignal }) => {
   const unsubscribeStateStyles = subscribeStateStyles();
   const unsubscribeEphemeralStyle = subscribeEphemeralStyle();
-  const unsubscribePreviewMode = subscribePreviewMode();
+  const unsubscribePreviewMode = subscribeHelperStyles();
   signal.addEventListener("abort", () => {
     unsubscribeStateStyles();
     unsubscribeEphemeralStyle();
