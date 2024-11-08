@@ -45,6 +45,8 @@ import {
   $registeredComponents,
   subscribeComponentHooks,
   $isPreviewMode,
+  $isDesignMode,
+  $isContentMode,
 } from "~/shared/nano-states";
 import { useDragAndDrop } from "./shared/use-drag-drop";
 import { initCopyPaste } from "~/shared/copy-paste";
@@ -181,6 +183,38 @@ const DesignMode = () => {
   return null;
 };
 
+const ContentEditMode = () => {
+  const debounceEffect = useDebounceEffect();
+  const ref = useRef<Instances>();
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    subscribeScrollNewInstanceIntoView(
+      debounceEffect,
+      ref,
+      abortController.signal
+    );
+    const unsubscribeSelected = subscribeSelected(debounceEffect);
+    return () => {
+      unsubscribeSelected();
+      abortController.abort();
+    };
+  }, [debounceEffect]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    const options = { signal: abortController.signal };
+    subscribeInstanceSelection(options);
+    subscribeInstanceHovering(options);
+    subscribeInspectorEdits(options);
+    subscribeFontLoadingDone(options);
+    return () => {
+      abortController.abort();
+    };
+  }, []);
+  return null;
+};
+
 type CanvasProps = {
   params: Params;
   imageLoader: ImageLoader;
@@ -188,7 +222,8 @@ type CanvasProps = {
 
 export const Canvas = ({ params, imageLoader }: CanvasProps) => {
   useCanvasStore(publish);
-  const isPreviewMode = useStore($isPreviewMode);
+  const isDesignMode = useStore($isDesignMode);
+  const isContentMode = useStore($isContentMode);
 
   useMount(() => {
     registerComponentLibrary({
@@ -283,7 +318,8 @@ export const Canvas = ({ params, imageLoader }: CanvasProps) => {
         // Call hooks after render to ensure effects are last.
         // Helps improve outline calculations as all styles are then applied.
       }
-      {isPreviewMode === false && isInitialized && <DesignMode />}
+      {isDesignMode && isInitialized && <DesignMode />}
+      {isContentMode && isInitialized && <ContentEditMode />}
     </>
   );
 };
