@@ -1,6 +1,11 @@
 import { getInstanceSelectorFromElement } from "~/shared/dom-utils";
 import { findClosestEditableInstanceSelector } from "~/shared/instance-utils";
-import { $instances, $registeredComponentMetas } from "~/shared/nano-states";
+import {
+  $hoveredInstanceOutline,
+  $hoveredInstanceSelector,
+  $instances,
+  $registeredComponentMetas,
+} from "~/shared/nano-states";
 import { $textEditingInstanceSelector } from "~/shared/nano-states";
 import { emitCommand } from "./shared/commands";
 import { shallowEqual } from "shallow-equal";
@@ -86,6 +91,9 @@ export const subscribeInstanceSelection = ({
       if (!shallowEqual(instanceSelector, editableInstanceSelector)) {
         selectInstance(editableInstanceSelector);
       }
+
+      $hoveredInstanceOutline.set(undefined);
+      $hoveredInstanceSelector.set(undefined);
 
       $textEditingInstanceSelector.set({
         selector: editableInstanceSelector,
