@@ -32,6 +32,7 @@ import {
   subscribeStyles,
   mountStyles,
   manageDesignModeStyles,
+  manageContentEditModeStyles,
 } from "./shared/styles";
 import {
   WebstudioComponentCanvas,
@@ -204,6 +205,7 @@ const ContentEditMode = () => {
   useEffect(() => {
     const abortController = new AbortController();
     const options = { signal: abortController.signal };
+    manageContentEditModeStyles(options);
     subscribeInstanceSelection(options);
     subscribeInstanceHovering(options);
     subscribeInspectorEdits(options);
